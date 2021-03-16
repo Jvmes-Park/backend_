@@ -14,20 +14,29 @@ const errorHandler = (error, request, response, next) => {
   if (error.name === 'CastError') {
     return response.status(400).send({error: 'malfortmatted id'})
   }
+  else if (error.name === 'Validationerror') {
+    return response.status(400).json({error: error.message})
+  }
   next(error)
 }
 
-app.get('/', (req, res) => {
-  res.send('<h1>Hello World!</h1>')
-})
+const requestLogger = (request, response, next) => {
+  console.log('Method:', request.method)
+  console.log('Path:  ', request.path)
+  console.log('Body:  ', request.body)
+  console.log('---')
+  next()
+}
 
-app.get('/api/notes', (req, res) => {
+app.use(requestLogger)
+
+app.get('/api/notes', (request, res) => {
   Note.find({}).then(notes => {
     res.json(notes)
   })
 })
 
-app.post('/api/notes', (request, response) => {
+app.post('/api/notes', (request, response, next) => {
   const body = request.body
 
   if (!body.content === undefined) {
@@ -86,7 +95,13 @@ app.put('/api/notes/:id', (request, response, next) => {
     .catch(error => next(error))
 })
 
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
 
+app.use(unknownEndpoint)
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
