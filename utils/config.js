@@ -1,8 +1,8 @@
-require('dotenv').config
+require('dotenv').config()
 
 const PORT = process.env.PORT
-const MONDODB_URI = process.env.MONDODB_URI
+const MONGODB_URI = process.env.MONGODB_URI
 
 module.exports = {
-    PORT, MONDODB_URI
+    PORT, MONGODB_URI
 }
